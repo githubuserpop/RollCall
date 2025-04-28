@@ -13,7 +13,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // API base URL - make sure we're using the correct port
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'http://localhost:5000/api';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
