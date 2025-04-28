@@ -1,13 +1,13 @@
 # Roll Call - Modern Group Voting Application
 
-Roll Call is a fully-featured, responsive group voting application built with Next.js, React, and Firebase. It transforms group voting into social media to help you stay connected with those you know.
+Roll Call is a fully-featured, responsive group voting application built with React, Vite, and Flask. It transforms group voting into social media to help you stay connected with those you know.
 
 ![Roll Call Logo](public/rollcallimg.png)
 
 ## Features
 
-- **User Authentication**: Secure email/password authentication with Firebase, plus social login options (Google, Facebook)
-- **Poll Creation**: Create custom polls with multiple-choice or yes/no questions
+- **User Authentication**: Secure email/password authentication
+- **Poll Creation**: Create custom polls with multiple-choice questions
 - **Group Management**: Organize friends into groups for targeted polling
 - **Real-time Updates**: See poll results update in real-time
 - **Data Visualization**: View poll results with interactive charts
@@ -16,8 +16,8 @@ Roll Call is a fully-featured, responsive group voting application built with Ne
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, TypeScript, Tailwind CSS
-- **Backend**: Firebase (Authentication, Firestore, Storage)
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
+- **Backend**: Flask, SQLAlchemy, SQLite
 - **Data Visualization**: Chart.js with react-chartjs-2
 - **Icons**: React Icons
 - **Forms**: React Hook Form
@@ -27,8 +27,9 @@ Roll Call is a fully-featured, responsive group voting application built with Ne
 ### Prerequisites
 
 - Node.js 18 or higher
+- Python 3.8 or higher
 - npm or yarn
-- Firebase account
+- pip
 
 ### Installation
 
@@ -38,127 +39,120 @@ git clone https://github.com/yourusername/rollcall.git
 cd rollcall
 ```
 
-2. Install dependencies:
+2. Set up the backend:
 ```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+pip install -r requirements.txt
+flask db upgrade
+python seed.py  # (Optional) Populate with sample data
+flask run
+```
+
+3. Set up the frontend:
+```bash
+cd frontend
 npm install
 # or
 yarn install
 ```
 
-3. Create a Firebase project:
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Create a new project
-   - Set up Authentication (enable Email/Password, Google, and Facebook if desired)
-   - Create a Firestore database
-   - Set up Storage
-
-4. Create a `.env.local` file in the root directory with your Firebase configuration:
-```
-NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
-```
-
-5. Start the development server:
+4. Start the frontend development server:
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:5173](http://localhost:5173) in your browser
 
 ## Application Structure
 
 ```
-src/
-├── app/                  # Next.js App Router pages
-│   ├── (auth)/           # Authentication pages
-│   ├── polls/            # Poll-related pages
-│   ├── groups/           # Group management pages
-│   └── landing/          # Landing page for non-authenticated users
-├── components/           # React components
-│   ├── auth/             # Authentication components
-│   ├── groups/           # Group-related components
-│   ├── layout/           # Layout components (Navbar, Footer)
-│   └── polls/            # Poll-related components
-├── contexts/             # React context providers
-│   └── AuthContext.tsx   # Authentication context
-├── lib/                  # Utilities and hooks
-│   ├── firebase.ts       # Firebase configuration
-│   └── hooks/            # Custom React hooks
-└── middleware.ts         # Authentication middleware
+├── backend/                # Flask Backend
+│   ├── app.py              # Main Flask application
+│   ├── models.py           # SQLAlchemy database models
+│   ├── extensions.py       # Flask extensions initialization
+│   ├── validation.py       # Request validation functions
+│   └── migrations/         # Database migrations
+│
+├── frontend/               # React Frontend
+│   ├── src/                # Source code
+│   │   ├── components/     # React components
+│   │   ├── context/        # React context providers
+│   │   ├── pages/          # Page components
+│   │   ├── types/          # TypeScript type definitions
+│   │   ├── utils/          # Utility functions
+│   │   └── App.tsx         # Main application component
+│   ├── index.html          # HTML entry point
+│   └── vite.config.ts      # Vite configuration
+│
+└── public/                 # Static files
 ```
 
-## Key Pages
-
-- `/landing`: Home page for non-authenticated users
-- `/auth/signup`: User registration
-- `/auth/login`: User login
-- `/`: Dashboard with active polls (for authenticated users)
-- `/polls`: View all polls
-- `/polls/create`: Create a new poll
-- `/polls/[id]`: View and vote on a specific poll
-- `/polls/[id]/results`: View detailed poll results
-- `/groups`: Manage groups
-- `/groups/create`: Create a new group
-
-## Firebase Setup Details
+## Key Features
 
 ### Authentication
+- User registration and login
+- Profile management
 
-Roll Call uses Firebase Authentication for:
-- Email/password authentication
-- Google OAuth
-- Facebook OAuth
-- User profile management
+### Groups
+- Create and manage groups
+- Add friends to groups
+- Group-specific polls
 
-### Firestore Database Structure
+### Polls
+- Create polls with custom options
+- Vote on polls
+- View poll results
+- Public and private polls
 
-**Collections:**
-- `users`: User profiles
-- `polls`: Poll data
-- `votes`: Vote records
-- `groups`: Group information and members
+## Backend API Endpoints
 
-**Example document structure for polls:**
-```json
-{
-  "id": "poll123",
-  "title": "Team Outing",
-  "description": "Vote on team outing ideas",
-  "createdBy": "user456",
-  "createdAt": "Timestamp",
-  "endDate": "Timestamp",
-  "options": [
-    { "id": "option1", "text": "Bowling", "votes": 5 },
-    { "id": "option2", "text": "Hiking", "votes": 3 }
-  ],
-  "groupId": "group789", // optional
-  "isPrivate": false,
-  "coverPhotoUrl": "https://example.com/image.jpg" // optional
-}
-```
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
 
-## Customization
+### Users
+- `PUT /api/users/profile` - Update user profile
+- `GET /api/friends/search` - Search for users
 
-You can customize the application by:
-- Modifying the color scheme in `tailwind.config.ts`
-- Adding/removing authentication providers in `src/lib/firebase.ts`
-- Customizing poll types in `src/components/polls/PollForm.tsx`
+### Groups
+- `GET /api/groups` - Get all groups
+- `POST /api/groups` - Create a new group
+- `GET /api/groups/:id` - Get group details
+
+### Polls
+- `POST /api/polls` - Create a new poll
+- `POST /api/polls/:id/vote` - Vote on a poll
+
+## Database Structure
+
+The application uses SQLite with SQLAlchemy ORM with the following models:
+- User - User accounts and profiles
+- Group - User groups
+- Poll - Polls with options
+- PollOption - Individual poll options
+- Vote - User votes on polls
 
 ## Deployment
 
-The easiest way to deploy Roll Call is using Vercel:
+### Backend Deployment
+1. Set up a virtual environment on your server
+2. Install dependencies from requirements.txt
+3. Configure environment variables
+4. Use a production WSGI server like Gunicorn
+5. Set up a reverse proxy with Nginx
 
-1. Push your code to a GitHub repository
-2. Import the project in Vercel
-3. Set environment variables for your Firebase configuration
-4. Deploy!
+### Frontend Deployment
+1. Build the frontend for production:
+```bash
+npm run build
+# or
+yarn build
+```
+2. Deploy the contents of the `dist` directory to a static file server
 
 ## License
 
