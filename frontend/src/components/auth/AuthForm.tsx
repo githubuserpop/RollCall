@@ -45,7 +45,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
           <Vote size={32} className="text-purple-600" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">VoteGroup</h1>
+        <h1 className="text-2xl font-bold text-gray-900">RollCall</h1>
         <p className="text-gray-600 mt-2">Create polls, vote together, make decisions</p>
       </div>
       
