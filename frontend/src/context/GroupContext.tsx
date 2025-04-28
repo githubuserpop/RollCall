@@ -105,15 +105,57 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const createPoll = (pollData: Omit<Poll, 'id' | 'createdAt' | 'status'>) => {
-    const newPoll: Poll = {
-      ...pollData,
-      id: `poll-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      status: 'active',
-    };
-    
-    updatePolls(newPoll);
+  const createPoll = async (pollData: Omit<Poll, 'id' | 'createdAt' | 'status'>) => {
+    try {
+      // Make an actual API call to the backend
+      console.log('Creating poll with data:', pollData);
+      console.log('User creating poll:', pollData.createdBy);
+      
+      const response = await fetch(`http://localhost:5001/api/groups/${pollData.groupId}/polls`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: pollData.title,
+          options: pollData.options.map(opt => opt.text),
+          creator_id: pollData.createdBy,
+          expire_days: 7 // Default expiration
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create poll');
+      }
+      
+      const data = await response.json();
+      
+      // Map the response data to our frontend Poll format
+      const newPoll: Poll = {
+        id: data.id,
+        title: data.question,
+        description: pollData.description || '',
+        options: data.options.map((opt: any) => ({
+          id: opt.id,
+          text: opt.text,
+          votes: opt.votes || []
+        })),
+        createdBy: data.creator_id,
+        groupId: data.group_id,
+        createdAt: data.created_at,
+        deadline: data.expire_at,
+        status: data.active ? 'active' : 'closed',
+        isPrivate: pollData.isPrivate || false
+      };
+      
+      // Update the local state with the new poll from backend
+      updatePolls(newPoll);
+      
+      return newPoll;
+    } catch (error) {
+      console.error('Error creating poll:', error);
+      throw error;
+    }
   };
 
   const votePoll = (pollId: string, optionId: string, userId: string) => {

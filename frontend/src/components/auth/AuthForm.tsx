@@ -30,8 +30,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         await register(username, email, password);
       }
       onSuccess();
-    } catch (err) {
-      setError('Authentication failed. Please try again.');
+    } catch (err: any) {
+      console.log('Auth error details:', err);
+      // Display the actual error message if available
+      setError(err?.message || 'Authentication failed. Please try again.');
     } finally {
       setLoading(false);
     }
