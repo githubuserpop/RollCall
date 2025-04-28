@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
   );
   
   return (
-    <MainLayout title="VoteGroup">
+    <MainLayout title="RollCall">
       <div className="px-4 py-4">
         <div className="flex mb-4 border-b">
           <button
