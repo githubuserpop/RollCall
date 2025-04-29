@@ -20,7 +20,7 @@ interface PollCardProps {
 
 const PollCard: React.FC<PollCardProps> = ({ poll, onClick, group }) => {
   const { user } = useAuth();
-  const { getGroupById } = useGroups();
+  const { getGroupById, votePoll } = useGroups();
   
   const pollGroup = group || getGroupById(poll.groupId);
   const totalVotes = poll.options.reduce((acc, option) => acc + option.votes.length, 0);
@@ -34,6 +34,12 @@ const PollCard: React.FC<PollCardProps> = ({ poll, onClick, group }) => {
       width: `${percent}%`,
       transition: { duration: 0.8, ease: "easeOut" }
     })
+  };
+
+  // Handler for inline voting
+  const handleVote = (optionId: string) => {
+    if (!user || isExpired) return;
+    votePoll(poll.id, optionId, user.id);
   };
 
   return (
@@ -81,31 +87,46 @@ const PollCard: React.FC<PollCardProps> = ({ poll, onClick, group }) => {
           <p className="text-sm text-gray-600 mb-3">{poll.description}</p>
         )}
         
-        <div className="space-y-3 mb-4">
-          {poll.options.map((option) => {
-            const { percent, count } = formatPollResults(option.votes, totalVotes);
-            const userVoted = user && option.votes.includes(user.id);
-            
-            return (
-              <div key={option.id} className="relative">
-                <div 
-                  className={`relative z-10 flex justify-between items-center p-2 border ${userVoted ? 'border-purple-300 bg-purple-50' : 'border-gray-200'} rounded-md`}
-                >
-                  <span className="font-medium text-sm">{option.text}</span>
-                  <span className="text-sm text-gray-600">{count} votes</span>
+        {/* Inline voting for active polls */}
+        {!isExpired && !hasVoted && user ? (
+          <div className="space-y-2 mb-4">
+            {poll.options.map(option => (
+              <button
+                key={option.id}
+                onClick={() => handleVote(option.id)}
+                className="w-full p-2 border rounded-md hover:border-purple-300 hover:bg-purple-50"
+              >
+                {option.text}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3 mb-4">
+            {poll.options.map((option) => {
+              const { percent, count } = formatPollResults(option.votes, totalVotes);
+              const userVoted = user && option.votes.includes(user.id);
+              
+              return (
+                <div key={option.id} className="relative">
+                  <div 
+                    className={`relative z-10 flex justify-between items-center p-2 border ${userVoted ? 'border-purple-300 bg-purple-50' : 'border-gray-200'} rounded-md`}
+                  >
+                    <span className="font-medium text-sm">{option.text}</span>
+                    <span className="text-sm text-gray-600">{count} votes</span>
+                  </div>
+                  <motion.div 
+                    className="absolute top-0 left-0 h-full bg-purple-100 rounded-md"
+                    style={{ zIndex: 5 }}
+                    variants={progressVariants}
+                    initial="initial"
+                    animate="animate"
+                    custom={percent}
+                  />
                 </div>
-                <motion.div 
-                  className="absolute top-0 left-0 h-full bg-purple-100 rounded-md"
-                  style={{ zIndex: 5 }}
-                  variants={progressVariants}
-                  initial="initial"
-                  animate="animate"
-                  custom={percent}
-                />
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
         
         <div className="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
           <div className="flex items-center">
