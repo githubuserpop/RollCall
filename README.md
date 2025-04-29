@@ -67,6 +67,42 @@ yarn dev
 
 5. Open [http://localhost:5173](http://localhost:5173) in your browser
 
+## Development Setup
+
+Follow these simple steps to install dependencies and run the development servers on macOS or Windows:
+
+### Backend
+
+```bash
+cd backend
+python3 -m venv venv           # Windows: python -m venv venv
+source venv/bin/activate       # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+flask db upgrade
+python seed.py  # Optional: populate sample data
+flask run
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install      # or yarn install
+npm run dev      # or yarn dev
+```
+
+Open http://localhost:5173 in your browser
+
+## Demo Accounts
+
+The following demo users are seeded by default via `python seed.py`:
+
+| Username | Email               | Password      |
+|----------|---------------------|---------------|
+| admin    | admin@example.com   | admin123      |
+| johndoe  | john@example.com    | password123   |
+| janedoe  | jane@example.com    | password123   |
+
 ## Application Structure
 
 ```
